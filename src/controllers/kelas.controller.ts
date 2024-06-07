@@ -12,7 +12,7 @@ import { KelasDto } from 'src/dto/kelas.dto';
 import { Kelas } from 'src/entity/kelas.entity';
 import { KelasService } from 'src/services/kelas.service';
 
-@Controller('kelas')
+@Controller('api/kelas')
 @ApiTags('Kelas')
 export class KelasController {
   constructor(private readonly mKelasService: KelasService) {}

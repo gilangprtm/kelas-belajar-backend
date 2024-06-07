@@ -1,5 +1,6 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import * as admin from 'firebase-admin';
+import { User } from 'src/entity/user.entity';
 import { SupabaseService } from 'src/services/supabase.service';
 
 @Injectable()
@@ -22,16 +23,24 @@ export class AuthService {
     }
   }
 
-  async getUser(email: string): Promise<any> {
-    const { data, error } = await this.supabaseService
-      .getSupabase()
-      .from('muser')
-      .select('*')
-      .eq('email', email)
-      .single();
-    if (error) {
-      throw new Error(error.message);
+  async getUser(email: string): Promise<User | null> {
+    try {
+      const { data, error } = await this.supabaseService
+        .getSupabase()
+        .from('muser')
+        .select('*')
+        .eq('email', email)
+        .single();
+      if (error) {
+        if (error.code === 'PGRST116') {
+          return null; // User not found
+        } else {
+          throw new Error(error.message);
+        }
+      }
+      return data as User;
+    } catch (error) {
+      throw new Error('Failed to get user by email: ' + error.message);
     }
-    return data;
   }
 }
