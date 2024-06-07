@@ -1,4 +1,4 @@
-import { Inject, Injectable, Logger } from '@nestjs/common';
+import { Inject, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { SupabaseService } from './supabase.service';
 import { User } from '../entity/user.entity';
 import { CreateUserDto } from 'src/dto/user.dto';
@@ -117,15 +117,15 @@ export class UserService {
     }
   }
 
-  async getProfile() {
+  async getProfile(): Promise<User> {
     const authHeader = this.request.headers.authorization;
     const user = await this.authService.validateToken(authHeader);
 
-    if (user === null) {
-      throw new Error('User not found');
+    if (!user) {
+      this.logger.error('User not found');
+      throw new NotFoundException('User not found');
     }
-    const data = user;
 
-    return data;
+    return user as User;
   }
 }
