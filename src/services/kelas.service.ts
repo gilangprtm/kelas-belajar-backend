@@ -4,11 +4,11 @@ import { Injectable, Logger } from '@nestjs/common';
 import { SupabaseService } from './supabase.service';
 import { KelasDto } from 'src/dto/kelas.dto';
 import { Kelas } from 'src/entity/kelas.entity';
-import { STATUS_CODES } from 'http';
 
 @Injectable()
 export class KelasService {
   private readonly logger = new Logger(KelasService.name);
+  private readonly DEFAULT_PAGE_SIZE = 10;
 
   constructor(private readonly supabaseService: SupabaseService) {}
 
@@ -34,17 +34,37 @@ export class KelasService {
     }
   }
 
-  async findAll(): Promise<Kelas[]> {
+  async findAll(
+    pageIndex: number = 0,
+    pageSize: number = this.DEFAULT_PAGE_SIZE,
+  ): Promise<any> {
     try {
-      const { data, error } = await this.supabaseService
+      const { data, count, error } = await this.supabaseService
         .getSupabase()
         .from('mkelas')
-        .select();
+        .select('*, muser(*)', { count: 'exact' })
+        .range(pageIndex * pageSize, (pageIndex + 1) * pageSize - 1);
+
       if (error) {
         this.logger.error(`Error fetching mKelas: ${error.message}`, error);
         throw new Error(error.message);
       }
-      return data;
+
+      const kelasList: Kelas[] = data.map((data: any) => ({
+        id: data.id,
+        nama: data.nama,
+        tahun: data.tahun,
+        semester: data.semester,
+        id_guru: data.id_guru,
+        nama_guru: data.muser ? data.muser.nama : null,
+      }));
+
+      return {
+        datas: kelasList,
+        pageIndex,
+        pageSize,
+        totalCount: count,
+      };
     } catch (error) {
       this.logger.error(
         `Failed to fetch mKelas: ${error.message}`,
@@ -59,14 +79,23 @@ export class KelasService {
       const { data, error } = await this.supabaseService
         .getSupabase()
         .from('mkelas')
-        .select()
+        .select('*, muser(*)')
         .eq('id', id)
         .single();
       if (error) {
         this.logger.error(`Error fetching mKelas: ${error.message}`, error);
         throw new Error(error.message);
       }
-      return data;
+
+      const kelas: Kelas = {
+        id: data.id,
+        nama: data.nama,
+        tahun: data.tahun,
+        semester: data.semester,
+        id_guru: data.id_guru,
+        nama_guru: data.muser ? data.muser.nama : null,
+      };
+      return kelas;
     } catch (error) {
       this.logger.error(
         `Failed to fetch mKelas: ${error.message}`,

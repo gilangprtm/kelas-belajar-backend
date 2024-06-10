@@ -15,4 +15,7 @@ export class Kelas {
 
   @ApiProperty()
   id_guru: number;
+
+  @ApiProperty()
+  nama_guru: string;
 }

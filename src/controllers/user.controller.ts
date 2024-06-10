@@ -6,14 +6,12 @@ import {
   Param,
   Put,
   Delete,
-  Req,
 } from '@nestjs/common';
 import { ApiTags, ApiResponse } from '@nestjs/swagger';
 import { UserService } from '../services/user.service';
 import { CreateUserDto } from '../dto/user.dto';
 import { User } from '../entity/user.entity';
 import { Public } from 'src/utility/public.decorator';
-import { Request } from 'express';
 
 @Controller('api')
 @ApiTags('User')
