@@ -4,6 +4,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { SupabaseService } from './supabase.service';
 import { KelasDto } from 'src/dto/kelas.dto';
 import { Kelas } from 'src/entity/kelas.entity';
+import { PaginationQueryDto } from 'src/dto/pagination.dto';
 
 @Injectable()
 export class KelasService {
@@ -34,16 +35,25 @@ export class KelasService {
     }
   }
 
-  async findAll(
-    pageIndex: number = 0,
-    pageSize: number = this.DEFAULT_PAGE_SIZE,
-  ): Promise<any> {
+  async findAll(paginationQuery: PaginationQueryDto): Promise<any> {
+    const {
+      pageIndex = 0,
+      pageSize = this.DEFAULT_PAGE_SIZE,
+      filter,
+    } = paginationQuery;
+
     try {
-      const { data, count, error } = await this.supabaseService
+      const query = this.supabaseService
         .getSupabase()
         .from('mkelas')
         .select('*, muser(*)', { count: 'exact' })
         .range(pageIndex * pageSize, (pageIndex + 1) * pageSize - 1);
+
+      if (filter) {
+        query.ilike('nama', `%${filter}%`);
+      }
+
+      const { data, count, error } = await query;
 
       if (error) {
         this.logger.error(`Error fetching mKelas: ${error.message}`, error);
