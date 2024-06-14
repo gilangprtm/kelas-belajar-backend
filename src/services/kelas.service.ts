@@ -13,7 +13,7 @@ export class KelasService {
 
   constructor(private readonly supabaseService: SupabaseService) {}
 
-  async create(createMKelasDto: KelasDto): Promise<number> {
+  async create(createMKelasDto: KelasDto): Promise<any> {
     try {
       const { data, error } = await this.supabaseService
         .getSupabase()
@@ -25,7 +25,9 @@ export class KelasService {
         throw new Error(error.message);
       }
       this.logger.log(`mKelas created successfully with id ${data[0].id}`);
-      return data[0].id;
+      return {
+        id: data[0].id,
+      };
     } catch (error) {
       this.logger.error(
         `Failed to create mKelas: ${error.message}`,
@@ -115,7 +117,7 @@ export class KelasService {
     }
   }
 
-  async update(id: number, createMKelasDto: KelasDto): Promise<number> {
+  async update(id: number, createMKelasDto: KelasDto): Promise<any> {
     try {
       const { data, error } = await this.supabaseService
         .getSupabase()
@@ -128,7 +130,9 @@ export class KelasService {
         throw new Error(error.message);
       }
       this.logger.log(`mKelas updated successfully with id ${data[0].id}`);
-      return data[0].id;
+      return {
+        id: data[0].id,
+      };
     } catch (error) {
       this.logger.error(
         `Failed to update mKelas: ${error.message}`,

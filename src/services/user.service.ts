@@ -60,7 +60,7 @@ export class UserService {
     }
   }
 
-  async create(userData: CreateUserDto): Promise<number> {
+  async create(userData: CreateUserDto): Promise<any> {
     try {
       const { data, error } = await this.supabaseService
         .getSupabase()
@@ -72,14 +72,16 @@ export class UserService {
         throw new Error(error.message);
       }
       this.logger.log(`User created successfully with id ${data[0].id}`);
-      return data[0].id;
+      return {
+        id: data[0].id,
+      };
     } catch (error) {
       this.logger.error(`Failed to create user: ${error.message}`, error.stack);
       throw new Error('Failed to create user: ' + error.message);
     }
   }
 
-  async update(id: number, userData: CreateUserDto): Promise<number> {
+  async update(id: number, userData: CreateUserDto): Promise<any> {
     try {
       const { data, error } = await this.supabaseService
         .getSupabase()
@@ -92,7 +94,9 @@ export class UserService {
         throw new Error(error.message);
       }
       this.logger.log(`User updated successfully with id ${data[0].id}`);
-      return data[0].id;
+      return {
+        id: data[0].id,
+      };
     } catch (error) {
       this.logger.error(`Failed to update user: ${error.message}`, error.stack);
       throw new Error('Failed to update user: ' + error.message);
