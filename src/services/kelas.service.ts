@@ -1,17 +1,24 @@
 // src/mkelas/mkelas.service.ts
 
-import { Injectable, Logger } from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 import { SupabaseService } from './supabase.service';
 import { KelasDto } from 'src/dto/kelas.dto';
 import { Kelas } from 'src/entity/kelas.entity';
-import { PaginationQueryDto } from 'src/dto/pagination.dto';
+import { KelasPaginationQueryDto } from 'src/dto/pagination.dto';
+import { REQUEST } from '@nestjs/core';
+import { Request } from 'express';
+import { AuthService } from 'src/utility/auth.service';
 
 @Injectable()
 export class KelasService {
   private readonly logger = new Logger(KelasService.name);
   private readonly DEFAULT_PAGE_SIZE = 10;
 
-  constructor(private readonly supabaseService: SupabaseService) {}
+  constructor(
+    @Inject(REQUEST) private readonly request: Request,
+    private authService: AuthService,
+    private readonly supabaseService: SupabaseService,
+  ) {}
 
   async create(createMKelasDto: KelasDto): Promise<any> {
     try {
@@ -37,12 +44,17 @@ export class KelasService {
     }
   }
 
-  async findAll(paginationQuery: PaginationQueryDto): Promise<any> {
+  async findAll(paginationQuery: KelasPaginationQueryDto): Promise<any> {
     const {
       pageIndex = 0,
       pageSize = this.DEFAULT_PAGE_SIZE,
       filter,
+      spesifik,
     } = paginationQuery;
+
+    const authHeader = this.request.headers.authorization;
+    const user = await this.authService.validateToken(authHeader);
+    const isSpesifik = spesifik.toString() === 'true' || spesifik === true;
 
     try {
       const query = this.supabaseService
@@ -53,6 +65,10 @@ export class KelasService {
 
       if (filter) {
         query.ilike('nama', `%${filter}%`);
+      }
+
+      if (isSpesifik) {
+        query.eq('id_guru', user.id);
       }
 
       const { data, count, error } = await query;

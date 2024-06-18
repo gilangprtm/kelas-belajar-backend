@@ -7,13 +7,13 @@ import {
   Body,
   Param,
   Query,
+  UseGuards,
 } from '@nestjs/common';
-import { ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { KelasDto } from 'src/dto/kelas.dto';
-import { PaginationQueryDto } from 'src/dto/pagination.dto';
+import { KelasPaginationQueryDto } from 'src/dto/pagination.dto';
 import { Kelas } from 'src/entity/kelas.entity';
 import { KelasService } from 'src/services/kelas.service';
-import { Public } from 'src/utility/public.decorator';
 
 @Controller('api/kelas')
 @ApiTags('Kelas')
@@ -21,10 +21,10 @@ export class KelasController {
   constructor(private readonly mKelasService: KelasService) {}
 
   @Get()
-  @Public()
+  @ApiBearerAuth('access-token')
   @ApiResponse({ status: 200, description: 'List of kelas', type: [Kelas] })
   async findAll(
-    @Query() paginationQuery: PaginationQueryDto,
+    @Query() paginationQuery: KelasPaginationQueryDto,
   ): Promise<Kelas[]> {
     return this.mKelasService.findAll(paginationQuery);
   }
