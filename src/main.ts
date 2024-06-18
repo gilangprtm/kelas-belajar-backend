@@ -11,6 +11,14 @@ async function bootstrap() {
     .setTitle('Kelas Belajar API')
     .setDescription('API Documentation for Kelas Belajar')
     .setVersion('1.0')
+    .addBearerAuth(
+      {
+        type: 'http',
+        scheme: 'bearer',
+        bearerFormat: 'JWT',
+      },
+      'access-token',
+    )
     .build(); // Membuat dokumentasi swagger
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document); // Menetapkan dokumentasi ke aplikasi

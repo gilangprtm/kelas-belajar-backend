@@ -10,3 +10,11 @@ export class PaginationQueryDto {
   @ApiPropertyOptional({ type: String, description: 'Filter (optional)' })
   filter?: string;
 }
+
+export class KelasPaginationQueryDto extends PaginationQueryDto {
+  @ApiPropertyOptional({
+    description: 'Filter by specific guru (optional)',
+    type: Boolean,
+  })
+  spesifik?: boolean;
+}
